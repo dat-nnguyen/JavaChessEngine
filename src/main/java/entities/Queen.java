@@ -1,4 +1,4 @@
 package entities;
 
-public class Queen {
+public class Queen extends Piece {
 }

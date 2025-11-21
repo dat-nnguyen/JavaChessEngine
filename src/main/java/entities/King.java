@@ -1,4 +1,4 @@
 package entities;
 
-public class King {
+public class King extends Piece {
 }
