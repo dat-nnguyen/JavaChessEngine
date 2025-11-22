@@ -1,6 +1,8 @@
-package entities;
+package Players;
 
 import core.Move;
+import entities.*;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -104,4 +106,23 @@ public abstract class Player {
     public Collection<Move> getLegalMoves() {
         return this.legalMoves;
     }
+
+    // In Player.java
+
+    // 1. Add this abstract method so WhitePlayer/BlackPlayer are forced to implement it.
+    protected abstract Collection<Move> calculateKingCastles(Collection<Move> playerLegals,
+                                                             Collection<Move> opponentsLegals);
+
+    // 2. IMPORTANT: Update your constructor to CALL this method!
+    // Change the line "this.legalMoves = legalMoves;" to this:
+    /*
+       this.legalMoves = ImmutableList.copyOf(Iterables.concat(legalMoves,
+                         calculateKingCastles(legalMoves, opponentMoves)));
+    */
+    // OR, if you aren't using Guava (Google Lib), use standard Java:
+    /*
+       final List<Move> combinedMoves = new ArrayList<>(legalMoves);
+       combinedMoves.addAll(calculateKingCastles(legalMoves, opponentMoves));
+       this.legalMoves = Collections.unmodifiableList(combinedMoves);
+    */
 }

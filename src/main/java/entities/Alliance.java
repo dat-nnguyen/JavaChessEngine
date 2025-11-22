@@ -1,5 +1,9 @@
 package entities;
 
+import Players.BlackPlayer;
+import Players.Player;
+import Players.WhitePlayer;
+
 public enum Alliance {
     WHITE {
         @Override

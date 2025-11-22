@@ -1,5 +1,8 @@
 package entities;
 
+import Players.BlackPlayer;
+import Players.Player;
+import Players.WhitePlayer;
 import core.Move;
 import java.util.*;
 
