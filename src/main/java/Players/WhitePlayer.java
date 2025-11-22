@@ -4,7 +4,9 @@ import core.Move;
 import entities.Alliance;
 import entities.Board;
 import entities.Piece;
-
+import entities.Rook;
+import core.Move.KingSideCastleMove;
+import core.Move.QueenSideCastleMove;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -50,11 +52,10 @@ public class WhitePlayer extends Player {
                 if (attackOn61.isEmpty() && attackOn62.isEmpty()) {
                     // need to check for the Rook at 63
                     if (this.board.getSquare(63).isOccupied()) {
-                        //TODO: uncomment after the Rook complete
-                        // final Piece pieceAt63 = this.board.getSquare(63).getPiece();
-                        // if (pieceAt63.isFirstMove() && pieceAt63.getPieceType().isRook()) {
-                        //      kingCastles.add(new KingSideCastleMove(this.board, this.playerKing, 62, (Rook)pieceAt63, 61, 63));
-                        // }
+                        final Piece pieceAt63 = this.board.getSquare(63).getPiece();
+                            if (pieceAt63.isFirstMove() && pieceAt63.getPieceType().isRook()) {
+                                kingCastles.add(new KingSideCastleMove(this.board, this.playerKing, 62, (Rook)pieceAt63, 61, 63));
+                        }
                     }
                 }
             }
@@ -74,10 +75,10 @@ public class WhitePlayer extends Player {
                     // we need to check for the Rook at 56
                     if(this.board.getSquare(56).isOccupied()) {
                         // TODO: Uncomment once Rook class is created
-                        // final Piece pieceAt56 = this.board.getSquare(56).getPiece();
-                        // if (pieceAt56.isFirstMove() && pieceAt56.getPieceType().isRook()) {
-                        //      kingCastles.add(new QueenSideCastleMove(this.board, this.playerKing, 58, (Rook)pieceAt56, 59, 56));
-                        // }
+                            final Piece pieceAt56 = this.board.getSquare(56).getPiece();
+                                if (pieceAt56.isFirstMove() && pieceAt56.getPieceType().isRook()) {
+                                    kingCastles.add(new QueenSideCastleMove(this.board, this.playerKing, 58, (Rook)pieceAt56, 59, 56));
+                        }
                     }
                 }
             }

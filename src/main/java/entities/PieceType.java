@@ -4,7 +4,12 @@ public enum PieceType {
     PAWN("P", 100),
     KNIGHT("N", 300),
     QUEEN("Q", 900),
-    ROOK("R", 500),
+    ROOK("R", 500){
+        @Override
+        public boolean isRook() {
+            return true;
+        }
+    },
     BISHOP("B", 300),
     KING("K", 1000){
         @Override
@@ -32,5 +37,5 @@ public enum PieceType {
     public boolean isKing() {
         return false;
     }
-
+    public boolean isRook() {return false;}
 }
