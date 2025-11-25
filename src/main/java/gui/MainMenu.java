@@ -42,13 +42,13 @@ public class MainMenu {
         titleLabel.setStyle("-fx-text-fill: #f0e6d2; -fx-effect: dropshadow(gaussian, black, 5, 1.0, 0, 0);");
 
         // Buttons
-        Button playButton = createImageButton("/assets/play.png");
+        Button playButton = createImageButton("/assets/buttons/play.png");
         playButton.setOnAction(e -> {
             SoundManager.playClick();
             ChessApp.showGameSetup();
         });
 
-        Button exitButton = createImageButton("/assets/exit.png");
+        Button exitButton = createImageButton("/assets/buttons/exit.png");
         exitButton.setOnAction(e -> {
             SoundManager.playClick();
             Platform.exit();

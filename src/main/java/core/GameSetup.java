@@ -128,7 +128,7 @@ public class GameSetup {
         colorBox.setAlignment(Pos.CENTER);
 
         // --- BUTTONS ---
-        Button startBtn = createImageButton("/assets/start.png");
+        Button startBtn = createImageButton("/assets/buttons/start.png");
         startBtn.setOnAction(e -> {
             SoundManager.playClick();
 
