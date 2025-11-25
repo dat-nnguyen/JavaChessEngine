@@ -13,34 +13,37 @@ public class SoundManager {
 
     static {
         try {
+            // Load background music
             URL musicUrl = SoundManager.class.getResource("/assets/music.wav");
             if (musicUrl != null) {
                 Media media = new Media(musicUrl.toExternalForm());
                 musicPlayer = new MediaPlayer(media);
-                musicPlayer.setCycleCount(MediaPlayer.INDEFINITE); // Loop forever
-                musicPlayer.setVolume(0.5); // 50% volume
+                musicPlayer.setCycleCount(MediaPlayer.INDEFINITE); // Loop
+                musicPlayer.setVolume(0.5);
             } else {
-                System.out.println("Music file not found!");
+                System.err.println("Music file not found!");
             }
 
+            // Load click sound
             URL clickUrl = SoundManager.class.getResource("/assets/click.wav");
             if (clickUrl != null) {
                 clickSound = new AudioClip(clickUrl.toExternalForm());
                 clickSound.setVolume(1.0);
-                clickSound.play(0.0);
             } else {
-                System.out.println("Click sound not found!");
+                System.err.println("Click sound not found!");
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
     public static void setMusicMuted(boolean muted) {
         if (musicPlayer != null) {
             musicPlayer.setMute(muted);
         }
     }
+
     public static void playMusic() {
         if (musicPlayer != null) {
             musicPlayer.play();

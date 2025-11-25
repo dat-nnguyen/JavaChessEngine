@@ -5,23 +5,27 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class Square {
+
     protected final int squareCoordinate;
 
     private static final Map<Integer, EmptySquare> EMPTY_SQUARE_CACHE = createAllPossibleEmptySquares();
 
     private static Map<Integer, EmptySquare> createAllPossibleEmptySquares() {
-        final Map<Integer, EmptySquare> emptyTileMap = new HashMap<>();
+        final Map<Integer, EmptySquare> emptySquares = new HashMap<>();
         for (int i = 0; i < 64; i++) {
-            emptyTileMap.put(i, new EmptySquare(i));
+            emptySquares.put(i, new EmptySquare(i));
         }
-        return Collections.unmodifiableMap(emptyTileMap);
+        return Collections.unmodifiableMap(emptySquares);
     }
 
     protected Square(final int squareCoordinate) {
         this.squareCoordinate = squareCoordinate;
     }
 
-    // this is what Board calls
+    /**
+     * Factory method for creating a square.
+     * Returns an OccupiedSquare if piece is non-null, else an EmptySquare from the cache.
+     */
     public static Square createSquare(final int squareCoordinate, final Piece piece) {
         if (piece != null) {
             return new OccupiedSquare(squareCoordinate, piece);
@@ -33,15 +37,18 @@ public abstract class Square {
     public abstract boolean isOccupied();
     public abstract Piece getPiece();
 
-    public static class EmptySquare extends Square {
+    public int getSquareCoordinate() {
+        return this.squareCoordinate;
+    }
+
+    //-- INNER CLASSES --
+
+    public static final class EmptySquare extends Square {
+
         private EmptySquare(final int squareCoordinate) {
             super(squareCoordinate);
         }
 
-        @Override
-        public String toString() {
-            return "-";
-        }
         @Override
         public boolean isOccupied() {
             return false;
@@ -51,22 +58,20 @@ public abstract class Square {
         public Piece getPiece() {
             return null;
         }
+
+        @Override
+        public String toString() {
+            return "-";
+        }
     }
+
     public static final class OccupiedSquare extends Square {
 
         private final Piece pieceOnSquare;
 
-        private OccupiedSquare(int tileCoordinate, Piece pieceOnTile) {
-            super(tileCoordinate);
-            this.pieceOnSquare = pieceOnTile;
-        }
-
-        @Override
-        public String toString() {
-            // If piece is BLACK, print lowercase. If WHITE, print uppercase.
-            return this.pieceOnSquare.getPieceAlliance().isBlack() ?
-                    this.pieceOnSquare.toString().toLowerCase() :
-                    this.pieceOnSquare.toString();
+        private OccupiedSquare(final int squareCoordinate, final Piece pieceOnSquare) {
+            super(squareCoordinate);
+            this.pieceOnSquare = pieceOnSquare;
         }
 
         @Override
@@ -78,8 +83,13 @@ public abstract class Square {
         public Piece getPiece() {
             return this.pieceOnSquare;
         }
-    }
-    public int getSquareCoordinate() {
-        return this.squareCoordinate;
+
+        @Override
+        public String toString() {
+            // Uppercase for white, lowercase for black
+            return this.pieceOnSquare.getPieceAlliance().isBlack() ?
+                    this.pieceOnSquare.toString().toLowerCase() :
+                    this.pieceOnSquare.toString();
+        }
     }
 }

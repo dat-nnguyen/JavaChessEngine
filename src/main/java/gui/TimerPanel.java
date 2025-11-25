@@ -19,16 +19,15 @@ public class TimerPanel extends HBox {
     private long whiteSecondsLeft;
     private long blackSecondsLeft;
     private boolean isWhiteTurn;
-    private Timeline timeline;
-    private Font clockFont;
+    private final Timeline timeline;
+    private final Font clockFont;
 
     public TimerPanel(int totalMinutes) {
-        // Styling: Horizontal layout with spacing
+        // Layout styling
         this.setSpacing(50);
         this.setAlignment(Pos.CENTER);
         this.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5); -fx-padding: 15;");
 
-        // Load Font
         this.clockFont = loadFont();
 
         this.whiteSecondsLeft = totalMinutes * 60L;
@@ -37,12 +36,12 @@ public class TimerPanel extends HBox {
 
         this.blackTimerLabel = createTimerLabel();
         this.whiteTimerLabel = createTimerLabel();
-
         updateLabels();
+        switchTurn(); // Initialize border highlight
 
-        // Add to Layout
         this.getChildren().addAll(blackTimerLabel, whiteTimerLabel);
 
+        // Timer update every second
         this.timeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> tick()));
         this.timeline.setCycleCount(Timeline.INDEFINITE);
         this.timeline.play();
@@ -82,33 +81,32 @@ public class TimerPanel extends HBox {
     }
 
     private Label createTimerLabel() {
-        Label l = new Label("00:00");
-        l.setFont(this.clockFont);
-        l.setStyle("-fx-text-fill: #f0e6d2; -fx-padding: 5;");
-        return l;
+        Label label = new Label("00:00");
+        label.setFont(this.clockFont);
+        label.setStyle("-fx-text-fill: #f0e6d2; -fx-padding: 5;");
+        return label;
     }
 
     private void handleTimeOut(Alliance loser) {
         this.timeline.stop();
         System.out.println("TIME OUT! " + loser + " lost.");
+        // TODO: Trigger game-over event in GameEngine
     }
 
     private Font loadFont() {
-        try {
-            InputStream is = getClass().getResourceAsStream("/assets/Retro Gaming.ttf");
+        try (InputStream is = getClass().getResourceAsStream("/assets/Retro Gaming.ttf")) {
             if (is != null) return Font.loadFont(is, 30);
-        } catch (Exception e) { }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return new Font("Arial", 30);
     }
+
     public void pause() {
-        if (this.timeline != null) {
-            this.timeline.pause();
-        }
+        if (this.timeline != null) this.timeline.pause();
     }
 
     public void resume() {
-        if (this.timeline != null) {
-            this.timeline.play();
-        }
+        if (this.timeline != null) this.timeline.play();
     }
 }

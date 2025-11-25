@@ -1,11 +1,14 @@
 package entities;
 
-import Players.BlackPlayer;
-import Players.Player;
-import Players.WhitePlayer;
+import players.BlackPlayer;
+import players.Player;
+import players.WhitePlayer;
 import core.Move;
 import java.util.*;
 
+/**
+ * Represents a chess board with pieces, players, and game state.
+ */
 public class Board {
 
     private final List<Square> gameBoard;
@@ -17,16 +20,16 @@ public class Board {
     private final BlackPlayer blackPlayer;
     private final Player currentPlayer;
 
+    /**
+     * Constructs a board from a Builder.
+     */
     private Board(final Builder builder) {
         this.gameBoard = createGameBoard(builder);
 
-        // Assign the En Passant pawn (nullable)
         this.enPassantPawn = builder.enPassantPawn;
-
         this.whitePieces = calculateActivePieces(this.gameBoard, Alliance.WHITE);
         this.blackPieces = calculateActivePieces(this.gameBoard, Alliance.BLACK);
 
-        // Call the REAL calculation method
         final Collection<Move> whiteStandardLegalMoves = calculateLegalMoves(this.whitePieces);
         final Collection<Move> blackStandardLegalMoves = calculateLegalMoves(this.blackPieces);
 
@@ -49,11 +52,13 @@ public class Board {
         return builder.toString();
     }
 
-    // --HELPER METHODS--
+    /**
+     * Creates the standard initial board setup.
+     */
     public static Board createStandardBoard() {
         final Builder builder = new Builder();
 
-        // --- BLACK PIECES (Top Rank 0 & 1) ---
+        // Black Pieces (top two ranks)
         builder.setPiece(new Rook(0, Alliance.BLACK));
         builder.setPiece(new Knight(1, Alliance.BLACK));
         builder.setPiece(new Bishop(2, Alliance.BLACK));
@@ -62,16 +67,10 @@ public class Board {
         builder.setPiece(new Bishop(5, Alliance.BLACK));
         builder.setPiece(new Knight(6, Alliance.BLACK));
         builder.setPiece(new Rook(7, Alliance.BLACK));
+        for (int i = 8; i < 16; i++) builder.setPiece(new Pawn(i, Alliance.BLACK));
 
-        for(int i = 8; i < 16; i++) {
-            builder.setPiece(new Pawn(i, Alliance.BLACK));
-        }
-
-        // --- WHITE PIECES (Bottom Rank 6 & 7) ---
-        // White Pawns
-        for(int i = 48; i < 56; i++) {
-            builder.setPiece(new Pawn(i, Alliance.WHITE));
-        }
+        // White Pieces (bottom two ranks)
+        for (int i = 48; i < 56; i++) builder.setPiece(new Pawn(i, Alliance.WHITE));
         builder.setPiece(new Rook(56, Alliance.WHITE));
         builder.setPiece(new Knight(57, Alliance.WHITE));
         builder.setPiece(new Bishop(58, Alliance.WHITE));
@@ -84,6 +83,7 @@ public class Board {
 
         return builder.build();
     }
+
     private static List<Square> createGameBoard(final Builder builder) {
         final List<Square> squares = new ArrayList<>(64);
         for (int i = 0; i < 64; i++) {
@@ -92,65 +92,45 @@ public class Board {
         return squares;
     }
 
-    private static Collection<Piece> calculateActivePieces(final List<Square> gameBoard,
-                                                           final Alliance alliance) {
+    private static Collection<Piece> calculateActivePieces(final List<Square> gameBoard, final Alliance alliance) {
         final List<Piece> activePieces = new ArrayList<>();
         for (final Square square : gameBoard) {
-            if (square.isOccupied()) {
-                final Piece piece = square.getPiece();
-                if (piece.getPieceAlliance() == alliance) {
-                    activePieces.add(piece);
-                }
+            if (square.isOccupied() && square.getPiece().getPieceAlliance() == alliance) {
+                activePieces.add(square.getPiece());
             }
         }
         return activePieces;
     }
 
-    // --- THE FIXED METHOD ---
+    /**
+     * Calculates all legal moves for a collection of pieces.
+     */
     private Collection<Move> calculateLegalMoves(final Collection<Piece> pieces) {
         final List<Move> legalMoves = new ArrayList<>();
-
         for (final Piece piece : pieces) {
-            // We verify the piece calculation logic (Knight, Rook, etc.) here
             legalMoves.addAll(piece.calculateLegalMoves(this));
         }
         return legalMoves;
     }
 
-    // --GETTERS--
-    public Collection<Piece> getBlackPieces() {
-        return this.blackPieces;
-    }
-    public Square getSquare(final int squareCoordinate) {
-        return this.gameBoard.get(squareCoordinate);
-    }
-    public Collection<Piece> getWhitePieces() {
-        return this.whitePieces;
-    }
-    public Pawn getEnPassantPawn() {
-        return this.enPassantPawn;
-    }
-    public Player getCurrentPlayer() {
-        return this.currentPlayer;
-    }
-    public BlackPlayer getBlackPlayer() {
-        return this.blackPlayer;
-    }
-    public WhitePlayer getWhitePlayer() {
-        return this.whitePlayer;
-    }
+    // --- GETTERS ---
+    public Collection<Piece> getBlackPieces() { return this.blackPieces; }
+    public Collection<Piece> getWhitePieces() { return this.whitePieces; }
+    public Square getSquare(final int squareCoordinate) { return this.gameBoard.get(squareCoordinate); }
+    public Pawn getEnPassantPawn() { return this.enPassantPawn; }
+    public Player getCurrentPlayer() { return this.currentPlayer; }
+    public BlackPlayer getBlackPlayer() { return this.blackPlayer; }
+    public WhitePlayer getWhitePlayer() { return this.whitePlayer; }
 
-    // -- BUILDER --
+    /**
+     * Builder class for constructing a Board instance.
+     */
     public static class Builder {
-
         Map<Integer, Piece> boardConfig;
         Alliance nextMoveMaker;
-        // FIXED: Change type to Pawn
         Pawn enPassantPawn;
 
-        public Builder() {
-            this.boardConfig = new HashMap<>();
-        }
+        public Builder() { this.boardConfig = new HashMap<>(); }
 
         public Builder setPiece(final Piece piece) {
             this.boardConfig.put(piece.getPiecePosition(), piece);
@@ -162,13 +142,8 @@ public class Board {
             return this;
         }
 
-        // FIXED: Accept Pawn directly to match Board field
-        public void setEnPassantPawn(Pawn enPassantPawn) {
-            this.enPassantPawn = enPassantPawn;
-        }
+        public void setEnPassantPawn(Pawn enPassantPawn) { this.enPassantPawn = enPassantPawn; }
 
-        public Board build() {
-            return new Board(this);
-        }
+        public Board build() { return new Board(this); }
     }
 }

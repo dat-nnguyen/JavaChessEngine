@@ -1,4 +1,4 @@
-package Players;
+package players;
 
 import core.Move;
 import entities.Alliance;

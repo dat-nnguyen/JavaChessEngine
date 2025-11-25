@@ -1,12 +1,13 @@
-package Players;
+package players;
 
 import core.Move;
+import core.Move.KingSideCastleMove;
+import core.Move.QueenSideCastleMove;
 import entities.Alliance;
 import entities.Board;
 import entities.Piece;
 import entities.Rook;
-import core.Move.KingSideCastleMove;
-import core.Move.QueenSideCastleMove;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -16,8 +17,6 @@ public class BlackPlayer extends Player {
     public BlackPlayer(final Board board,
                        final Collection<Move> whiteStandardLegalMoves,
                        final Collection<Move> blackStandardLegalMoves) {
-
-        // Pass the specific lists to the parent constructor
         super(board, blackStandardLegalMoves, whiteStandardLegalMoves);
     }
 
@@ -42,8 +41,7 @@ public class BlackPlayer extends Player {
 
         final List<Move> kingCastles = new ArrayList<>();
 
-        // KING SIDE CASTLE
-        // Black King starts at 4. Target is 6.
+        // --- KING SIDE CASTLE ---
         if (this.playerKing.isFirstMove() && !this.isInCheck()) {
 
             if (!this.board.getSquare(5).isOccupied() && !this.board.getSquare(6).isOccupied()) {
@@ -54,16 +52,22 @@ public class BlackPlayer extends Player {
                 if (attacksOn5.isEmpty() && attacksOn6.isEmpty()) {
                     if (this.board.getSquare(7).isOccupied()) {
                         final Piece pieceAt7 = this.board.getSquare(7).getPiece();
-                            if (pieceAt7.isFirstMove() && pieceAt7.getPieceType().isRook()) {
-                            kingCastles.add(new KingSideCastleMove(this.board, this.playerKing, 6, (Rook)pieceAt7, 5, 7));
+                        if (pieceAt7.isFirstMove() && pieceAt7.getPieceType().isRook()) {
+                            kingCastles.add(new KingSideCastleMove(
+                                    this.board,
+                                    this.playerKing,
+                                    6,
+                                    (Rook) pieceAt7,
+                                    5,
+                                    7
+                            ));
                         }
                     }
                 }
             }
         }
 
-        // QUEEN SIDE CASTLE
-        // Black King starts at 4. Target is 2.
+        // --- QUEEN SIDE CASTLE ---
         if (this.playerKing.isFirstMove() && !this.isInCheck()) {
 
             if (!this.board.getSquare(1).isOccupied() &&
@@ -77,7 +81,14 @@ public class BlackPlayer extends Player {
                     if (this.board.getSquare(0).isOccupied()) {
                         final Piece pieceAt0 = this.board.getSquare(0).getPiece();
                         if (pieceAt0.isFirstMove() && pieceAt0.getPieceType().isRook()) {
-                            kingCastles.add(new QueenSideCastleMove(this.board, this.playerKing, 2, (Rook)pieceAt0, 3, 0));
+                            kingCastles.add(new QueenSideCastleMove(
+                                    this.board,
+                                    this.playerKing,
+                                    2,
+                                    (Rook) pieceAt0,
+                                    3,
+                                    0
+                            ));
                         }
                     }
                 }

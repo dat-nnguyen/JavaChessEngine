@@ -1,4 +1,4 @@
-package Players;
+package players;
 
 import core.Move;
 import entities.*;
@@ -21,24 +21,28 @@ public abstract class Player {
 
         this.board = board;
         this.playerKing = establishKing();
+
+        // Combine legal moves with castle moves
         final List<Move> combinedMoves = new ArrayList<>(legalMoves);
         combinedMoves.addAll(calculateKingCastles(legalMoves, opponentMoves));
         this.legalMoves = Collections.unmodifiableList(combinedMoves);
-        // logic: If the list of attacks on my King is NOT empty, I am in check.
-        this.isInCheck = !Player.calculateAttacksOnSquare(this.playerKing.getPiecePosition(), opponentMoves).isEmpty();
+
+        // Check if the King is under attack
+        this.isInCheck = !Player.calculateAttacksOnSquare(
+                this.playerKing.getPiecePosition(), opponentMoves).isEmpty();
     }
 
     // --- ABSTRACT METHODS ---
     public abstract Collection<Piece> getActivePieces();
     public abstract Alliance getAlliance();
     public abstract Player getOpponent();
+    protected abstract Collection<Move> calculateKingCastles(Collection<Move> playerLegals,
+                                                             Collection<Move> opponentsLegals);
 
-    // --- IMPLEMENTED METHODS ---
-
+    // --- STATIC UTILITY ---
     public static Collection<Move> calculateAttacksOnSquare(final int piecePosition,
                                                             final Collection<Move> moves) {
         final List<Move> attackMoves = new ArrayList<>();
-        // Loop through all enemy moves. If a move lands on the specific square, it is an attack.
         for (final Move move : moves) {
             if (piecePosition == move.getDestinationCoordinate()) {
                 attackMoves.add(move);
@@ -47,14 +51,14 @@ public abstract class Player {
         return attackMoves;
     }
 
+    // --- HELPER METHODS ---
     private King establishKing() {
         for (final Piece piece : getActivePieces()) {
-            // Ensure PieceType has this check, or use: piece.getPieceType() == PieceType.KING
             if (piece.getPieceType().isKing()) {
                 return (King) piece;
             }
         }
-        throw new RuntimeException("Not a valid board! No King found!");
+        throw new RuntimeException("Invalid board! No King found!");
     }
 
     public boolean isMoveLegal(final Move move) {
@@ -90,7 +94,7 @@ public abstract class Player {
 
         final Board transitionBoard = move.execute();
 
-        // Calculate attacks on the King in the NEW board
+        // Check if move leaves King in check
         final Collection<Move> kingAttacks = Player.calculateAttacksOnSquare(
                 transitionBoard.getCurrentPlayer().getOpponent().getPlayerKing().getPiecePosition(),
                 transitionBoard.getCurrentPlayer().getLegalMoves());
@@ -109,8 +113,4 @@ public abstract class Player {
     public Collection<Move> getLegalMoves() {
         return this.legalMoves;
     }
-
-    // Add this abstract method so WhitePlayer/BlackPlayer are forced to implement it.
-    protected abstract Collection<Move> calculateKingCastles(Collection<Move> playerLegals,
-                                                             Collection<Move> opponentsLegals);
 }

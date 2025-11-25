@@ -33,7 +33,6 @@ public class SquarePanel extends StackPane {
         this.setPrefSize(70, 70);
         this.setMaxSize(70, 70);
 
-
         this.background = new Rectangle(70, 70);
         assignTileColor();
 
@@ -48,6 +47,7 @@ public class SquarePanel extends StackPane {
         this.getChildren().addAll(background, highlightMarker, pieceIcon);
         StackPane.setAlignment(this.pieceIcon, Pos.CENTER);
         StackPane.setMargin(this.pieceIcon, new Insets(0, 0, 5, 0));
+
         setOnMouseClicked(e -> engine.handleMouseClick(this.squareId));
     }
 
@@ -80,7 +80,6 @@ public class SquarePanel extends StackPane {
 
         if (board.getSquare(this.squareId).isOccupied()) {
             final Piece piece = board.getSquare(this.squareId).getPiece();
-
             String allianceFolder = piece.getPieceAlliance().isWhite() ? "whitePiece" : "blackPiece";
             String colorPrefix = piece.getPieceAlliance().isWhite() ? "white" : "black";
             String typeName = piece.getPieceType().name().toLowerCase();

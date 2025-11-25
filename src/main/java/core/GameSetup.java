@@ -1,6 +1,5 @@
 package core;
 
-import core.GameConfiguration;
 import entities.Alliance;
 import gui.ChessApp;
 import gui.SoundManager;
@@ -19,6 +18,12 @@ import javafx.util.Duration;
 
 import java.io.InputStream;
 
+/**
+ * Handles the game setup UI where players select mode, AI difficulty, time control, and side.
+ * <p>
+ * Provides a visually styled panel with dropdowns, radio buttons, and start/back buttons,
+ * including video background handling.
+ */
 public class GameSetup {
 
     private final StackPane rootPane;
@@ -31,18 +36,21 @@ public class GameSetup {
     private ComboBox<Integer> timeDropdown;
     private ToggleGroup colorGroup;
 
+    /**
+     * Constructs the GameSetup panel and initializes all UI elements and background media.
+     */
     public GameSetup() {
+        // --- ROOT PANE & BACKGROUND ---
         this.rootPane = new StackPane();
         this.rootPane.setStyle("-fx-background-color: black;");
-
         addBackground("/assets/background.mp4");
 
+        // --- FONT & OPTION PANEL ---
         this.pixelFont = loadCustomFont("/assets/Retro Gaming.ttf", 20);
-        this.optionPanel = new VBox(10); // Increased spacing
-        this.optionPanel.setMaxSize(550, 520); // Widen for title
+        this.optionPanel = new VBox(10);
+        this.optionPanel.setMaxSize(550, 520);
         this.optionPanel.setAlignment(Pos.TOP_CENTER);
         this.optionPanel.setPadding(new Insets(40));
-
         this.optionPanel.setStyle(
                 "-fx-background-color: rgba(0, 0, 0, 0.85);" +
                         "-fx-border-color: #8f563b;" +
@@ -51,12 +59,12 @@ public class GameSetup {
                         "-fx-border-radius: 10;"
         );
 
-        // Title
+        // --- HEADER ---
         Label header = new Label("GAME CONFIGURATION");
         header.setFont(loadCustomFont("/assets/Retro Gaming.ttf", 32));
         header.setStyle("-fx-text-fill: #e67e22; -fx-effect: dropshadow(gaussian, black, 3, 1.0, 0, 0);");
 
-        // --- MODE ---
+        // --- MODE SELECTION ---
         Label modeLabel = createHeaderLabel("Select Mode");
         RadioButton pvpBtn = createPixelRadioButton("Player vs Player");
         pvpBtn.setSelected(true);
@@ -66,12 +74,11 @@ public class GameSetup {
         pvpBtn.setToggleGroup(modeGroup);
         aiBtn.setToggleGroup(modeGroup);
 
-        // --- DIFFICULTY ---
+        // --- AI DIFFICULTY ---
         difficultyBox = new VBox(10);
         difficultyBox.setAlignment(Pos.CENTER);
         difficultyBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.05); -fx-padding: 10; -fx-background-radius: 5;");
 
-        // Fixed label font logic
         Label diffLabel = new Label("AI Difficulty");
         diffLabel.setFont(loadCustomFont("/assets/Retro Gaming.ttf", 22));
         diffLabel.setStyle("-fx-text-fill: #f1c40f; -fx-effect: dropshadow(gaussian, black, 2, 1.0, 0, 0);");
@@ -96,19 +103,16 @@ public class GameSetup {
             difficultyBox.setManaged(isAI);
         });
 
-        // --- TIME & COLOR ---
+        // --- TIME CONTROL ---
         Label timeLabel = createHeaderLabel("Time per Player (Minutes)");
-
-        // Setup Dropdown
         timeDropdown = new ComboBox<>();
         timeDropdown.getItems().addAll(10, 20, 30);
         timeDropdown.setValue(10);
-
         loadCustomFont("/assets/Retro Gaming.ttf", 10);
         timeDropdown.setStyle("-fx-font-family: 'Retro Gaming'; -fx-font-size: 18px; -fx-background-color: #dcdcdc;");
-
         timeDropdown.setOnAction(e -> SoundManager.playClick());
 
+        // --- COLOR SELECTION ---
         Label colorLabel = createHeaderLabel("Choose Side");
         RadioButton whiteBtn = createPixelRadioButton("White");
         whiteBtn.setSelected(true);
@@ -148,8 +152,6 @@ public class GameSetup {
             if (cText.equals("White")) alliance = Alliance.WHITE;
             else if (cText.equals("Black")) alliance = Alliance.BLACK;
 
-            // REMOVE STOP MUSIC HERE (So music continues)
-
             GameConfiguration config = new GameConfiguration(mode, diff, time, alliance);
             ChessApp.showGameEngine(config);
         });
@@ -164,13 +166,21 @@ public class GameSetup {
         buttonBox.setAlignment(Pos.CENTER);
         buttonBox.setPadding(new Insets(20, 0, 0, 0));
 
+        // --- ADD ELEMENTS TO PANEL ---
         optionPanel.getChildren().addAll(header, new Separator(), modeLabel, pvpBtn, aiBtn, difficultyBox, timeLabel, timeDropdown, colorLabel, colorBox, new Separator(), buttonBox);
         rootPane.getChildren().add(optionPanel);
     }
 
+    /**
+     * Returns the root StackPane containing the setup UI.
+     *
+     * @return root layout node
+     */
     public StackPane getLayout() { return this.rootPane; }
 
+    // ---------------------------------------------------------------------------
     // --- HELPERS ---
+    // ---------------------------------------------------------------------------
 
     private Label createHeaderLabel(String text) {
         Label l = new Label(text);
@@ -181,12 +191,9 @@ public class GameSetup {
 
     private RadioButton createPixelRadioButton(String text) {
         RadioButton rb = new RadioButton(text);
-
         rb.setFont(loadCustomFont("/assets/Retro Gaming.ttf", 18));
         rb.setStyle("-fx-text-fill: #f0e6d2; -fx-cursor: hand;");
-
         rb.setOnMouseClicked(e -> SoundManager.playClick());
-
         return rb;
     }
 
