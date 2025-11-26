@@ -28,7 +28,7 @@ public class MainMenu {
         this.rootPane.setStyle("-fx-background-color: black;");
 
         // Add animated background
-        addBackground("/assets/background.mp4");
+        addBackground("/assets/background/background.mp4");
 
         // Load custom pixel font
         this.pixelFont = loadCustomFont("/assets/Retro Gaming.ttf", 80);
@@ -94,7 +94,7 @@ public class MainMenu {
             mediaView.setPreserveRatio(false);
 
             // Placeholder image until video loads
-            InputStream imgStream = getClass().getResourceAsStream("/assets/background.png");
+            InputStream imgStream = getClass().getResourceAsStream("/assets/background/background.png");
             ImageView placeholder = new ImageView(new Image(imgStream));
             placeholder.fitWidthProperty().bind(this.rootPane.widthProperty());
             placeholder.fitHeightProperty().bind(this.rootPane.heightProperty());

@@ -1,10 +1,8 @@
 package core;
 
-import core.GameConfiguration;
 import core.ai.MiniMax;
 import core.ai.MoveStrategy;
 import entities.Board;
-import core.Move;
 import entities.MoveTransition;
 import entities.Piece;
 import entities.Square;
@@ -56,6 +54,9 @@ public class GameEngine {
     private final GameConfiguration config;
     private Font pixelFont;
 
+    private double xOffset = 0;
+    private double yOffset = 0;
+
     public GameEngine(GameConfiguration inputConfig) {
         // 1. Handle Random Color Logic
         if (inputConfig.getPlayerColor() == null) {
@@ -71,24 +72,20 @@ public class GameEngine {
         }
 
         this.chessBoard = Board.createStandardBoard();
-        // Load Font (Ensure path is correct, fallback to Arial if missing)
         this.pixelFont = loadCustomFont("/assets/Retro Gaming.ttf", 20);
 
-        // Initialize Timer (Pass handleTimeOut for callback)
         this.gameTimer = new TimerPanel(config.getTimeControlMinutes(), this::handleTimeOut);
 
-        // Initialize Board Panel
         this.boardPanel = new BoardPanel(this, config);
 
         // Root Layer Setup
         this.rootLayer = new StackPane();
         this.rootLayer.setStyle("-fx-background-color: black;");
-        addBackground("/assets/background.mp4");
+        addBackground("/assets/background/background.mp4");
 
         // UI Layer Setup
         this.uiLayer = new BorderPane();
         this.uiLayer.setCenter(this.boardPanel);
-        // Push board down
         BorderPane.setMargin(this.boardPanel, new Insets(25, 0, 0, 0));
         this.uiLayer.setBottom(this.gameTimer);
 
@@ -99,8 +96,8 @@ public class GameEngine {
 
         // --- SOUND BUTTON ---
         Button soundBtn = new Button();
-        ImageView soundOnIcon = loadIcon("/assets/buttons/unmute.png", 80);
-        ImageView soundOffIcon = loadIcon("/assets/buttons/mute.png", 80);
+        ImageView soundOnIcon = loadIcon("/assets/buttons/unmute.png", 100);
+        ImageView soundOffIcon = loadIcon("/assets/buttons/mute.png", 100);
 
         soundBtn.setGraphic(soundOnIcon);
         soundBtn.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
@@ -117,7 +114,6 @@ public class GameEngine {
             }
         });
 
-        // Sound Hover Effect
         soundBtn.setOnMouseEntered(e -> soundBtn.setScaleX(1.1));
         soundBtn.setOnMouseEntered(e -> { soundBtn.setScaleX(1.1); soundBtn.setScaleY(1.1); });
         soundBtn.setOnMouseExited(e -> { soundBtn.setScaleX(1.0); soundBtn.setScaleY(1.0); });
@@ -144,13 +140,13 @@ public class GameEngine {
         // Initial Draw
         this.boardPanel.drawBoard(this.chessBoard);
 
-        // Trigger AI check (in case AI is White)
+        // Trigger AI check
         checkAI();
     }
 
     public StackPane getLayout() { return this.rootLayer; }
 
-    // --- AI INTEGRATION ---
+    // --- AI LOGIC ---
     private void checkAI() {
         if (isGameEnded || config.getGameMode() == GameConfiguration.GameMode.HUMAN_VS_HUMAN) {
             return;
@@ -158,7 +154,7 @@ public class GameEngine {
 
         // Check if it's AI's turn
         if (chessBoard.getCurrentPlayer().getAlliance() == config.getPlayerColor()) {
-            return; // It's Human's turn
+            return; // Human's turn
         }
 
         System.out.println("AI is thinking...");
@@ -170,11 +166,10 @@ public class GameEngine {
         Task<Move> aiTask = new Task<>() {
             @Override
             protected Move call() throws Exception {
-                MoveStrategy strategy = new MiniMax(depth);
-                Move bestMove = strategy.execute(chessBoard);
+                // Delay to separate sounds and feel natural
                 Thread.sleep(1000);
-
-                return bestMove;
+                MoveStrategy strategy = new MiniMax(depth);
+                return strategy.execute(chessBoard);
             }
         };
 
@@ -200,16 +195,15 @@ public class GameEngine {
         final MoveTransition transition = chessBoard.getCurrentPlayer().makeMove(move);
         if (transition.getMoveStatus().isDone()) {
             this.chessBoard = transition.getTransitionBoard();
-
-            // Switch Timer
             this.gameTimer.switchTurn();
-
             SoundManager.playClick();
 
+            // 1. Redraw board
             boardPanel.drawBoard(this.chessBoard);
 
-            // Highlight AI's move
+            // 2. Highlight Move Path (Start & End)
             boardPanel.highlightSourceSquare(move.getMovedPiece().getPiecePosition());
+            boardPanel.highlightSourceSquare(move.getDestinationCoordinate());
 
             System.out.println("AI moved to: " + move.getDestinationCoordinate());
 
@@ -226,30 +220,31 @@ public class GameEngine {
                 chessBoard.getCurrentPlayer().getAlliance() != config.getPlayerColor()) {
             return;
         }
-
         boardPanel.drawBoard(this.chessBoard);
 
         if (sourceSquare != null) {
-            // Second Click (Target)
+            // --- SECOND CLICK (MOVE) ---
             SoundManager.playClick();
             destinationSquare = chessBoard.getSquare(squareId);
-
-            // FIX: Use getTileCoordinate()
             final Move move = findLegalMove(sourceSquare.getSquareCoordinate(), destinationSquare.getSquareCoordinate());
 
             if (move != null) {
                 final MoveTransition transition = chessBoard.getCurrentPlayer().makeMove(move);
                 if (transition.getMoveStatus().isDone()) {
                     this.chessBoard = transition.getTransitionBoard();
-
-                    // Switch Timer
                     this.gameTimer.switchTurn();
 
+                    // 1. Redraw board with new piece positions
                     boardPanel.drawBoard(this.chessBoard);
+
+                    // 2. Highlight Move Path (Start & End)
+                    boardPanel.highlightSourceSquare(sourceSquare.getSquareCoordinate());
+                    boardPanel.highlightSourceSquare(destinationSquare.getSquareCoordinate());
+
                     System.out.println("Move executed!");
 
                     checkGameOver();
-                    checkAI(); // Trigger AI
+                    checkAI();
                 }
             }
             sourceSquare = null;
@@ -257,7 +252,7 @@ public class GameEngine {
             humanMovedPiece = null;
 
         } else {
-            // First Click (Source)
+            // --- FIRST CLICK (SELECT) ---
             Square clickedSquare = chessBoard.getSquare(squareId);
             if (clickedSquare.isOccupied()) {
                 Piece piece = clickedSquare.getPiece();
@@ -265,7 +260,11 @@ public class GameEngine {
                     SoundManager.playClick();
                     sourceSquare = clickedSquare;
                     humanMovedPiece = piece;
+
+                    // Highlight Selection
                     boardPanel.highlightSourceSquare(squareId);
+
+                    // Highlight Legal Destination Dots
                     final Collection<Move> legalMoves = piece.calculateLegalMoves(this.chessBoard);
                     boardPanel.highlightLegals(legalMoves, piece.getPieceAlliance());
                 }
@@ -278,12 +277,24 @@ public class GameEngine {
         this.gameOverMenu = new VBox(20);
         this.gameOverMenu.setAlignment(Pos.CENTER);
         this.gameOverMenu.setMaxSize(400, 350);
+
         this.gameOverMenu.setStyle(
                 "-fx-background-color: rgba(0, 0, 0, 0.95);" +
                         "-fx-border-color: #f1c40f; -fx-border-width: 5px;" +
                         "-fx-background-radius: 15; -fx-border-radius: 15;" +
                         "-fx-effect: dropshadow(gaussian, black, 20, 0.5, 0, 0);"
         );
+
+        // Draggable Logic
+        this.gameOverMenu.setCursor(javafx.scene.Cursor.MOVE);
+        this.gameOverMenu.setOnMousePressed(event -> {
+            xOffset = event.getSceneX() - gameOverMenu.getTranslateX();
+            yOffset = event.getSceneY() - gameOverMenu.getTranslateY();
+        });
+        this.gameOverMenu.setOnMouseDragged(event -> {
+            gameOverMenu.setTranslateX(event.getSceneX() - xOffset);
+            gameOverMenu.setTranslateY(event.getSceneY() - yOffset);
+        });
 
         ImageView titleImage = new ImageView();
         titleImage.setFitWidth(300);
@@ -293,13 +304,13 @@ public class GameEngine {
         winnerLabel.setFont(loadCustomFont("/assets/Retro Gaming.ttf", 28));
         winnerLabel.setStyle("-fx-text-fill: #f0e6d2; -fx-effect: dropshadow(gaussian, black, 2, 1.0, 0, 0);");
 
-        Button playAgainBtn = createImageButton("/assets/buttons/playagain.png", 180);
+        Button playAgainBtn = createImageButton("/assets/buttons/playagain.png", 200);
         playAgainBtn.setOnAction(e -> {
             SoundManager.playClick();
             ChessApp.showGameEngine(this.config);
         });
 
-        Button exitBtn = createImageButton("/assets/buttons/exitmatch.png", 180);
+        Button exitBtn = createImageButton("/assets/buttons/exitmatch.png", 200);
         exitBtn.setOnAction(e -> {
             SoundManager.playClick();
             SoundManager.playMusic();
@@ -376,16 +387,16 @@ public class GameEngine {
         if (chessBoard.getCurrentPlayer().isInCheckMate()) {
             Alliance winner = chessBoard.getCurrentPlayer().getOpponent().getAlliance();
             String text = winner.isWhite() ? "White Wins!" : "Black Wins!";
-            showEndScreen("/assets/checkmate.png", text);
+            showEndScreen("/assets/background/checkmate.png", text);
         } else if (chessBoard.getCurrentPlayer().isInStaleMate()) {
-            showEndScreen("/assets/stalemate.png", "Draw (Stalemate)");
+            showEndScreen("/assets/background/stalemate.png", "Draw (Stalemate)");
         }
     }
 
     private void handleTimeOut(Alliance loser) {
         if (isGameEnded) return;
         String winner = loser.isWhite() ? "Black" : "White";
-        showEndScreen("/assets/checkmate.png", winner + " Wins (Time Out)!");
+        showEndScreen("/assets/background/checkmate.png", winner + " Wins (Time Out)!");
     }
 
     private void showEndScreen(String imagePath, String text) {

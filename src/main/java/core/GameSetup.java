@@ -43,7 +43,7 @@ public class GameSetup {
         // --- ROOT PANE & BACKGROUND ---
         this.rootPane = new StackPane();
         this.rootPane.setStyle("-fx-background-color: black;");
-        addBackground("/assets/background.mp4");
+        addBackground("/assets/background/background.mp4");
 
         // --- FONT & OPTION PANEL ---
         this.pixelFont = loadCustomFont("/assets/Retro Gaming.ttf", 20);
@@ -156,7 +156,7 @@ public class GameSetup {
             ChessApp.showGameEngine(config);
         });
 
-        Button backBtn = createImageButton("/assets/back.png");
+        Button backBtn = createImageButton("/assets/buttons/back.png");
         backBtn.setOnAction(e -> {
             SoundManager.playClick();
             ChessApp.showMainMenu();
@@ -210,7 +210,7 @@ public class GameSetup {
             mediaView.fitHeightProperty().bind(this.rootPane.heightProperty());
             mediaView.setPreserveRatio(false);
 
-            InputStream imgStream = getClass().getResourceAsStream("/assets/background.png");
+            InputStream imgStream = getClass().getResourceAsStream("/assets/background/background.png");
             ImageView placeholder = new ImageView(new Image(imgStream));
             placeholder.fitWidthProperty().bind(this.rootPane.widthProperty());
             placeholder.fitHeightProperty().bind(this.rootPane.heightProperty());

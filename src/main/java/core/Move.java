@@ -8,8 +8,42 @@ import entities.Board.Builder;
  * <p>
  * Handles move execution, equality, hashCode, and special moves like castling, pawn promotion, and en passant.
  */
+
 public abstract class Move {
 
+    // Factory Class for creating moves easily in Tests/AI
+    public static class MoveFactory {
+
+        // This handles the "Null Object Pattern" if a move is invalid
+        private static final Move NULL_MOVE = new NullMove();
+
+        public static Move createMove(final Board board, final int currentCoordinate, final int destinationCoordinate) {
+            for (final Move move : board.getCurrentPlayer().getLegalMoves()) {
+                if (move.getMovedPiece().getPiecePosition() == currentCoordinate &&
+                        move.getDestinationCoordinate() == destinationCoordinate) {
+                    return move;
+                }
+            }
+            return NULL_MOVE;
+        }
+    }
+
+    // Helper Null Move Class
+    public static class NullMove extends Move {
+        public NullMove() {
+            super(null, null, -1); // Invalid state
+        }
+        @Override
+        public Board execute() {
+            throw new RuntimeException("Cannot execute the null move!");
+        }
+        @Override
+        public int getDestinationCoordinate() {
+            return -1;
+        }
+    }
+
+    // Class Field
     protected final Board board;
     protected final Piece movedPiece;
     protected final int destinationCoordinate;

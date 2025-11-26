@@ -35,7 +35,7 @@ public class MiniMax implements MoveStrategy {
         int lowestSeenValue = Integer.MAX_VALUE;
         int currentValue;
 
-        System.out.println(board.getCurrentPlayer() + "Thinking with depth " + this.searchDepth);
+        System.out.println("Thinking with depth " + this.searchDepth);
         // now loop through available move
         int numMoves = board.getCurrentPlayer().getLegalMoves().size();
         int moveCounter = 1;

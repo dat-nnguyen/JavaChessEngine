@@ -14,7 +14,7 @@ public class SoundManager {
     static {
         try {
             // Load background music
-            URL musicUrl = SoundManager.class.getResource("/assets/music.wav");
+            URL musicUrl = SoundManager.class.getResource("/assets/sound/music.wav");
             if (musicUrl != null) {
                 Media media = new Media(musicUrl.toExternalForm());
                 musicPlayer = new MediaPlayer(media);
@@ -25,7 +25,7 @@ public class SoundManager {
             }
 
             // Load click sound
-            URL clickUrl = SoundManager.class.getResource("/assets/click.wav");
+            URL clickUrl = SoundManager.class.getResource("/assets/sound/click.wav");
             if (clickUrl != null) {
                 clickSound = new AudioClip(clickUrl.toExternalForm());
                 clickSound.setVolume(1.0);
