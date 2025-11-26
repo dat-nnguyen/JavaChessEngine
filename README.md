@@ -53,7 +53,7 @@ A fully functional, object-oriented Chess Engine built from scratch using Java 1
 ### Steps
 1.  **Clone the repository**
     ```bash
-    git clone [https://github.com/yourusername/java-chess-engine.git](https://github.com/yourusername/java-chess-engine.git)
+    git clone [https://github.com/dat-nnguyen/java-chess-engine.git](https://github.com/dat-nnguyen/java-chess-engine.git)
     cd java-chess-engine
     ```
 
