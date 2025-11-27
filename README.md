@@ -101,4 +101,8 @@ The project includes a JUnit test suite covering critical game mechanics.
 To run tests:
 ```bash
 mvn test
+```
 
+**Author:** Nguyen Tuan Dat
+
+**License:** MIT
